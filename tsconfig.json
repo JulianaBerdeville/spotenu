@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "target": "es6",
+        "module": "commonjs", /*Permite interoperabilidade entre versões do Javascript*/
+        "outDir": "./build", /*Tudo que for compilado de Ts para Js vai pra pasta build*/
+        "strict": true,
+        "esModuleInterop": true, /*Permite interoperabilidade entre versões do Javascript*/
+        "forceConsistentCasingInFileNames": true
+    }
+}
