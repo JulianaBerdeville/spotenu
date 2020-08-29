@@ -1,45 +1,84 @@
-import express, {Request, Response} from "express"
-import app from "../index"
+import {Request, Response} from "express"
 import {IdGenerator} from "../services/IdGenerator"
 import {HashGenerator} from "../services/HashGenerator"
 import {Authenticator} from "../services/Authenticator"
-import {UserDatabase} from "../data/UserDatabase"
+import {UserBusiness} from "../business/UserBusiness"
 
-app.post("SignUp", async(req: Request, res: Response) => {
-    try {
-        const name = req.body.name
-        const email = req.body.email
-        const nickname = req.body.nickname
-        const password = req.body.password
 
-        /*Validando informações fornecidas no body*/
-        if (!name || email || nickname || password){
-            throw new Error("Oops! Something's missing")
+export class UserController {
+     async signUp (req: Request, res: Response){
+        try {
+            /*Gerando um id ao usuário*/
+            const idGenerator = new IdGenerator()
+            const id = idGenerator.generateId()
+
+            /*Encriptando a senha do usuário*/
+            const hashGenerator = new HashGenerator()
+            const hashedPassword = await hashGenerator.hash(req.body.password) 
+
+            const body = {
+             id,
+             name: req.body.name,
+             email: req.body.email,
+             nickname: req.body.nickname,
+             password: hashedPassword
+            }
+
+            /*Validando informações fornecidas no body*/
+            if (!body.name || !body.email || !body.nickname || !body.password){
+                throw new Error("Oops! Something's missing")
+            }
+           
+            const userBusiness = new UserBusiness()
+            await userBusiness.allUsersSignUp(body)
+            const role = "free_users"
+            const authenticator = new Authenticator()
+            const token = authenticator.generateToken({id, role})
+            
+            res.status(200).send({
+                message: `Welcome, ${body.name}. Check your access token below: `, token
+            })
+        } catch(e){
+            res.status(400).send({e})
         }
-        if(password.length<6){
-            throw new Error("Your password must have, at least, 6 characters long.")
-        }
-    
-        /*Gerando um id ao usuário*/
-        const idGenerator = new IdGenerator()
-        const id = idGenerator.generateId()
-    
-        /*Encriptando a senha do usuário*/
-        const hashGenerator = new HashGenerator()
-        const hashedPassword = await hashGenerator.hash(password)
-
-        const userDatabase = new UserDatabase()
-        await userDatabase.signUp(id, name, email, nickname, hashedPassword)
-
-        const authenticator = new Authenticator()
-        const token = authenticator.generateToken({id})
-
-        res.status(200).send({message: "Welcome. Here's your access token: ", token})
-    } catch(error){
-        res.status(400).send({message: "Oops! Something's wrong: ", error})
     }
-})
+   
+    async adminSignUp(req: Request, res: Response){
+        try{
 
-app.get("/getBands", async(req: Request, res: Response) => {
-    res.status(200).send({message: 'it works!'})
-})
+            const idGenerator = new IdGenerator()
+            const id = idGenerator.generateId()
+
+            const hashGenerator = new HashGenerator()
+            const hashedPassword = await hashGenerator.hash(req.body.password)
+
+            const body = {
+                id,
+                name: req.body.name,
+                email: req.body.email,
+                nickname: req.body.nickname,
+                password: hashedPassword,
+            }
+
+            if (!body.name || !body.email || !body.nickname || !body.password){
+                throw new Error("Oops! Something's missing")
+            }
+
+            const userBusiness = new UserBusiness()
+            await userBusiness.adminUsersSignUp(body)
+            const role = "admin"
+
+            const authenticator = new Authenticator()
+            const token = authenticator.generateToken({id, role})
+
+            const headers= req.headers.authorization as string
+            authenticator.verify(headers)
+
+            res.status(200).send({
+                message: `Welcome, ${body.name}. You're an admin user. Check your access token below: `, token
+            })
+        } catch(e){
+            res.status(400).send({e})
+        }
+    }
+}
