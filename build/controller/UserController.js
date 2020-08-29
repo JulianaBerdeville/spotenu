@@ -17,7 +17,7 @@ const IdGenerator_1 = require("../services/IdGenerator");
 const HashGenerator_1 = require("../services/HashGenerator");
 const Authenticator_1 = require("../services/Authenticator");
 const UserDatabase_1 = require("../data/UserDatabase");
-index_1.default.post("/SignUp", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+index_1.default.post("SignUp", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const name = req.body.name;
         const email = req.body.email;
