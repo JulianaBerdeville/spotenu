@@ -26,11 +26,17 @@ class Authenticator {
         return Number(process.env.ACCESS_TOKEN_EXPIRES_IN);
     }
     generateToken(data) {
-        return jwt.sign(data, process.env.JWT_KEY, { expiresIn: Authenticator.getExpiresIn() }); /*Este método retorna o token, que é uma string*/
+        return jwt.sign(data, process.env.JWT_KEY, {
+            expiresIn: "10min"
+        }); /*Este método retorna o token, que é uma string*/
     }
     verify(token) {
         const data = jwt.verify(token, process.env.JWT_KEY);
-        return { id: data.id };
+        const result = {
+            id: data.id,
+            role: data.role
+        };
+        return result;
     }
 }
 exports.Authenticator = Authenticator;

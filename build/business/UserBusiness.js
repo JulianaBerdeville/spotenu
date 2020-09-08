@@ -15,13 +15,34 @@ class UserBusiness {
     constructor() {
         this.userDatabase = new UserDatabase_1.UserDatabase();
     }
-    FreeUsersSignUp(input) {
+    insertCommonUsers(input) {
         return __awaiter(this, void 0, void 0, function* () {
-            yield this.userDatabase.signUp(input.id, input.name, input.email, input.nickname, input.password);
+            /*Regras pra cadastro de usuários pagos ou ouvintes*/
+            yield this.userDatabase.createNewUsers(input);
+            if (input.password.length < 6) {
+                throw new Error("Your password should be, at least, 6 characters long.");
+            }
         });
     }
-    PaidUsersLogin(input) {
+    insertAdminUser(input) {
         return __awaiter(this, void 0, void 0, function* () {
+            yield this.userDatabase.createNewAdminUser(input);
+            if (input.password.length < 10) {
+                throw new Error("Your password should be, at least, 10 characters long.");
+            }
+        });
+    }
+    getUserByEmailOrNickname(login) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield this.userDatabase.login(login);
+        });
+    }
+    insertBand(input) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.userDatabase.bandSignUp(input);
+            if (input.password.length < 6) {
+                throw new Error("Your password should be, at least, 6 characters long.");
+            }
         });
     }
 }

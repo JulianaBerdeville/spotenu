@@ -10,7 +10,7 @@ export class Authenticator {
             data,
             process.env.JWT_KEY as string,
             {
-                expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN
+                expiresIn: "10min"
             }
         ) /*Este método retorna o token, que é uma string*/
          
@@ -24,7 +24,7 @@ export class Authenticator {
          
         const result = {
             id: data.id,
-                role: data.role
+            role: data.role
         }
         return result
     }
